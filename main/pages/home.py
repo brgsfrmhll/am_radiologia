@@ -40,16 +40,17 @@ def kpi_card(id_value: str, label: str, icon: str, tooltip: str | None = None):
     return card
 
 def hero():
-    s = read_settings()
-    title = s.get("portal_name", "Portal Radiológico")
-    return html.Div([
-        html.Div(className="hero-bg"),
-        html.Div([
-            html.H1(title, className="mb-2 fw-bold"),
-            html.P("Fluxo rápido para cadastro de exames, estoque por lote e visão gerencial.",
-                   className="lead mb-0"),
-        ], className="position-relative", style={"zIndex": 2}),
-    ], className="hero glass shadow-sm rounded-4 p-4 p-md-5 mb-4 position-relative overflow-hidden")
+    return html.Div(
+        [
+            html.H1(
+                "Menu Principal",
+                className="fw-bold text-center",  # Bootstrap: negrito e centralizado
+                style={"margin": "0"}  # remove margens extras
+            )
+        ],
+        className="d-flex justify-content-center align-items-center hero shadow-sm rounded-4 p-4 p-md-5 mb-4",
+        style={"height": "100px"}  # altura fixa opcional para centralizar melhor
+    )
 
 # --------------------------- Cards simples ---------------------------
 
@@ -133,3 +134,4 @@ def load_kpis(_n):
             pass
 
     return f"{total}", f"{today_count}", f"{low}", br_currency(stock_value)
+
