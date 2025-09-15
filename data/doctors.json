@@ -1,0 +1,18 @@
+{
+  "doctors": [
+    {
+      "nome": "Teste2346",
+      "crm": null,
+      "id": 1
+    },
+    {
+      "nome": "Teste2345",
+      "crm": null,
+      "id": 2
+    },
+    {
+      "id": 3,
+      "nome": "Dr. João Silva"
+    }
+  ]
+}

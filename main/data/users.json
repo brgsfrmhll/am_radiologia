@@ -1,0 +1,60 @@
+{
+  "users": [
+    {
+      "nome": "Administrador",
+      "email": "admin@local.com",
+      "senha_hash": "scrypt:32768:8:1$J0wmpNG9IVDvkI9F$32445391550c2ee70f96414e26e38b5f46610cdf3128b2c7e130f5b886d50a659f41aca7184e85798085b4b2ddc6bf58a7b015f2a65964dab194f937f074d21c",
+      "modalidades_permitidas": "*",
+      "perfil": "admin",
+      "id": 1
+    },
+    {
+      "nome": "Marcelo Luis",
+      "email": "marceloisidoro113@gmail.com",
+      "senha_hash": "scrypt:32768:8:1$3iUG8i3jQyAad4xm$8732d3e9d657711a71935f6e1bdf1cc76a1bc38ba8839db5889226c3af65114e443a2a8301790cc1b91e2bc0097d8ef43eec05272eeb7fd54267f4bce3b61ef0",
+      "modalidades_permitidas": "*",
+      "perfil": "admin",
+      "id": 3
+    },
+    {
+      "nome": "Andreia Almeida",
+      "email": "gestaohospitalarandreia@gmail.com",
+      "senha_hash": "scrypt:32768:8:1$jlqxea5VYRWzWvNx$0b454fcafcdd9be9e71ac1510a0defb9e06729175e081bf1b02743eedbeb8805eddd8e5b33abac06dba025e064e21bb4638b40456160c9a35bf60fce4b78dc6b",
+      "modalidades_permitidas": "*",
+      "perfil": "admin",
+      "id": 4
+    },
+    {
+      "nome": "Teste23",
+      "email": "teste@teste.com",
+      "senha_hash": "scrypt:32768:8:1$kTGJG62fJ7lJRFYp$b8946c1377d63b9af1b71a14581f614e70494f9f272822740b26eaeea16617d8301289f99487a4c183838ef4cb558bbecfb222eab697605504e0edbf65b09243",
+      "modalidades_permitidas": "*",
+      "perfil": "admin",
+      "id": 5
+    },
+    {
+      "nome": "Teste2343",
+      "email": "teste@te4ste.com",
+      "senha_hash": "scrypt:32768:8:1$E1dczocslpUR3tJ4$63ee4a7c73a1a9a5c9a53d48166d2adf0bbeda87eec6475ea75983b61c49d8eb1c42ca641b3385a6319b0cf4b329077120cd55c9f2f5a3b02215ad8a019f0e4f",
+      "modalidades_permitidas": "*",
+      "perfil": "admin",
+      "id": 6
+    },
+    {
+      "nome": "Teste23456",
+      "email": "teste@te54ste.com",
+      "senha_hash": "scrypt:32768:8:1$3BeBpbS9kwGPN2dD$824ef52675f2ffc9e474d043564e0582ba69ba7755d9df47c6ee8671dff611782972bbb0a02504b84b65955687ca49f9981a856f8b453f68a457880c5b92ef8b",
+      "modalidades_permitidas": "*",
+      "perfil": "admin",
+      "id": 7
+    },
+    {
+      "nome": "Teste23457",
+      "email": "teste@te547ste.com",
+      "senha_hash": "scrypt:32768:8:1$EhYQsGWXQAlA1sTq$6214832abfda2cc7f241001cf5b060b1c2c39edfaaa7025083497b5acd1c2d3b70e4be484a5980b0ccc2da60c11304b40a3c697b26b949df4b894981d0ebb0a6",
+      "modalidades_permitidas": "*",
+      "perfil": "admin",
+      "id": 8
+    }
+  ]
+}

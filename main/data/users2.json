@@ -1,0 +1,28 @@
+{
+  "admin": {
+    "password_hash": "scrypt:32768:8:1$SMPiBh8ZBoei8mox$7eb5f3c4e29d5f1f1e1f5a6386b462bf7ff0c71cf83f8a77759ac1fde9bac9cad4b02f7761f3f37094402a10a3730c655218ec64bb77c295c7074a69f7fbcf7d",
+    "roles": [
+      "admin",
+      "classificador",
+      "executor",
+      "aprovador"
+    ]
+  },
+  "admin2": {
+    "password_hash": "scrypt:32768:8:1$kNLKX1VGulfey7kf$3f36d9a51acbfab556cdaff25ada1783e0592d7dbad3d87a5152ea57b3d40547931ce6c9540b897a9da589cc76a2194717a6a5fdbce47e086f82ad9974280041",
+    "roles": [
+      "executor",
+      "admin"
+    ]
+  },
+  "users": [
+    {
+      "nome": "Administrador",
+      "email": "admin@local",
+      "senha_hash": "scrypt:32768:8:1$iKUy8KdE2cSKylEv$b685cf0201e60bb15af79204a360a3d9ce78faf38c9f1bf4236fed29b0b973e471f52762ce1edf353092bc589ec3461bbf63e98de4e963e961e7be22fccecce3",
+      "modalidades_permitidas": "*",
+      "perfil": "admin",
+      "id": 1
+    }
+  ]
+}

@@ -1,0 +1,884 @@
+{
+  "logs": [
+    {
+      "ts": "2025-09-13T00:54:25.424005",
+      "user": "admin@local.com",
+      "action": "update",
+      "entity": "exam_type",
+      "entity_id": 1,
+      "before": {
+        "id": 1,
+        "modalidade": "RX",
+        "nome": "Tórax PA/L",
+        "codigo": "RX001"
+      },
+      "after": {
+        "id": 1,
+        "modalidade": "RX",
+        "nome": "Tórax PA/L1",
+        "codigo": "RX001"
+      }
+    },
+    {
+      "ts": "2025-09-13T00:54:25.466464",
+      "user": "admin@local.com",
+      "action": "delete",
+      "entity": "exam_type",
+      "entity_id": 1,
+      "before": {
+        "id": 1,
+        "modalidade": "RX",
+        "nome": "Tórax PA/L1",
+        "codigo": "RX001"
+      },
+      "after": null
+    },
+    {
+      "ts": "2025-09-13T00:54:42.653712",
+      "user": "admin@local.com",
+      "action": "update",
+      "entity": "exam_type",
+      "entity_id": 2,
+      "before": {
+        "id": 2,
+        "modalidade": "RX",
+        "nome": "Coluna Lombar AP/L",
+        "codigo": "RX002"
+      },
+      "after": {
+        "id": 2,
+        "modalidade": "RX",
+        "nome": "Coluna Lombar AP/L22",
+        "codigo": "RX002"
+      }
+    },
+    {
+      "ts": "2025-09-13T00:54:42.691940",
+      "user": "admin@local.com",
+      "action": "delete",
+      "entity": "exam_type",
+      "entity_id": 2,
+      "before": {
+        "id": 2,
+        "modalidade": "RX",
+        "nome": "Coluna Lombar AP/L22",
+        "codigo": "RX002"
+      },
+      "after": null
+    },
+    {
+      "ts": "2025-09-13T00:55:02.648799",
+      "user": "admin@local.com",
+      "action": "update",
+      "entity": "exam_type",
+      "entity_id": 3,
+      "before": {
+        "id": 3,
+        "modalidade": "CT",
+        "nome": "Crânio",
+        "codigo": "CT001"
+      },
+      "after": {
+        "id": 3,
+        "modalidade": "RX",
+        "nome": "Crânio",
+        "codigo": "CT001"
+      }
+    },
+    {
+      "ts": "2025-09-13T00:55:02.689259",
+      "user": "admin@local.com",
+      "action": "delete",
+      "entity": "exam_type",
+      "entity_id": 3,
+      "before": {
+        "id": 3,
+        "modalidade": "RX",
+        "nome": "Crânio",
+        "codigo": "CT001"
+      },
+      "after": null
+    },
+    {
+      "ts": "2025-09-13T00:57:19.803674",
+      "user": "admin@local.com",
+      "action": "create",
+      "entity": "user",
+      "entity_id": 5,
+      "before": null,
+      "after": {
+        "nome": "teste",
+        "email": "teste@teste.com",
+        "modalidades_permitidas": "*",
+        "perfil": "admin",
+        "id": 0
+      }
+    },
+    {
+      "ts": "2025-09-13T00:57:36.154882",
+      "user": "admin@local.com",
+      "action": "update",
+      "entity": "user",
+      "entity_id": 5,
+      "before": {
+        "nome": "teste",
+        "email": "teste@teste.com",
+        "modalidades_permitidas": "*",
+        "perfil": "admin",
+        "id": 5
+      },
+      "after": {
+        "nome": "teste",
+        "email": "teste@teste.com",
+        "modalidades_permitidas": "*",
+        "perfil": "admin",
+        "id": 5
+      }
+    },
+    {
+      "ts": "2025-09-13T01:01:42.515820",
+      "user": "admin@local.com",
+      "action": "update",
+      "entity": "settings",
+      "entity_id": "theme",
+      "before": {
+        "portal_name": "Portal Radiológico",
+        "theme": "Flatly",
+        "logo_file": null,
+        "logo_height_px": 40
+      },
+      "after": {
+        "portal_name": "Portal Radiológico",
+        "theme": "Materia",
+        "logo_height_px": 40
+      }
+    },
+    {
+      "ts": "2025-09-13T01:02:13.397375",
+      "user": "admin@local.com",
+      "action": "update",
+      "entity": "settings",
+      "entity_id": "theme",
+      "before": {
+        "portal_name": "Portal Radiológico",
+        "theme": "Materia",
+        "logo_file": null,
+        "logo_height_px": 40
+      },
+      "after": {
+        "portal_name": "Portal Radiológico",
+        "theme": "Lux",
+        "logo_height_px": 40
+      }
+    },
+    {
+      "ts": "2025-09-13T21:14:18.102511",
+      "user": "admin@local.com",
+      "action": "update",
+      "entity": "settings",
+      "entity_id": "theme",
+      "before": {
+        "portal_name": "Portal Radiológico",
+        "theme": "Lux",
+        "logo_file": null,
+        "logo_height_px": 40
+      },
+      "after": {
+        "portal_name": "Portal Radiológico",
+        "theme": "Materia",
+        "logo_height_px": 40
+      }
+    },
+    {
+      "ts": "2025-09-13T21:14:52.993296",
+      "user": "admin@local.com",
+      "action": "update",
+      "entity": "settings",
+      "entity_id": "theme",
+      "before": {
+        "portal_name": "Portal Radiológico",
+        "theme": "Materia",
+        "logo_file": null,
+        "logo_height_px": 40
+      },
+      "after": {
+        "portal_name": "Portal Radiológico",
+        "theme": "Flatly",
+        "logo_height_px": 40
+      }
+    },
+    {
+      "ts": "2025-09-13T22:08:25.201380",
+      "user": "admin@local.com",
+      "action": "update",
+      "entity": "settings",
+      "entity_id": "theme",
+      "before": {
+        "portal_name": "Portal Radiológico",
+        "theme": "Flatly",
+        "logo_file": null,
+        "logo_height_px": 40
+      },
+      "after": {
+        "portal_name": "Portal Radiológico",
+        "theme": "Lux",
+        "logo_height_px": 40,
+        "logo_url": "/assets/logo.png"
+      }
+    },
+    {
+      "ts": "2025-09-13T22:27:40.977862",
+      "user": "admin@local.com",
+      "action": "update",
+      "entity": "settings",
+      "entity_id": "theme",
+      "before": {
+        "portal_name": "Portal Radiológico",
+        "theme": "Lux",
+        "logo_file": null,
+        "logo_height_px": 40,
+        "logo_url": "/assets/logo.png"
+      },
+      "after": {
+        "portal_name": "Portal Radiológico",
+        "theme": "Lux",
+        "logo_height_px": 40,
+        "logo_url": "/assets/logo.png"
+      }
+    },
+    {
+      "ts": "2025-09-13T22:27:50.710463",
+      "user": "admin@local.com",
+      "action": "update",
+      "entity": "settings",
+      "entity_id": "theme",
+      "before": {
+        "portal_name": "Portal Radiológico",
+        "theme": "Lux",
+        "logo_file": null,
+        "logo_height_px": 40,
+        "logo_url": "/assets/logo.png"
+      },
+      "after": {
+        "portal_name": "Portal Radiológico",
+        "theme": "Lux",
+        "logo_height_px": 40,
+        "logo_url": "/assets/logo.png"
+      }
+    },
+    {
+      "ts": "2025-09-13T22:47:31.707075",
+      "user": "admin@local.com",
+      "action": "update",
+      "entity": "settings",
+      "entity_id": "theme",
+      "before": {
+        "portal_name": "Portal Radiológico",
+        "theme": "Lux",
+        "logo_file": null,
+        "logo_height_px": 40,
+        "logo_url": "/assets/logo.png"
+      },
+      "after": {
+        "portal_name": "Portal Radiológico",
+        "theme": "Lux",
+        "logo_height_px": 96,
+        "logo_url": "/app/assets/logo_custom.jpeg"
+      }
+    },
+    {
+      "ts": "2025-09-13T22:57:41.751272",
+      "user": "admin@local.com",
+      "action": "create",
+      "entity": "doctor",
+      "entity_id": 2,
+      "before": null,
+      "after": {
+        "nome": "Teste",
+        "crm": "123456",
+        "id": 0
+      }
+    },
+    {
+      "ts": "2025-09-13T22:57:41.792331",
+      "user": "admin@local.com",
+      "action": "delete",
+      "entity": "doctor",
+      "entity_id": 1,
+      "before": {
+        "id": 1,
+        "nome": "Dr. João Silva"
+      },
+      "after": null
+    },
+    {
+      "ts": "2025-09-13T22:57:55.030864",
+      "user": "admin@local.com",
+      "action": "create",
+      "entity": "doctor",
+      "entity_id": 3,
+      "before": null,
+      "after": {
+        "nome": "Teste2",
+        "crm": "123456",
+        "id": 0
+      }
+    },
+    {
+      "ts": "2025-09-13T22:57:55.068347",
+      "user": "admin@local.com",
+      "action": "delete",
+      "entity": "doctor",
+      "entity_id": 2,
+      "before": {
+        "nome": "Teste",
+        "crm": "123456",
+        "id": 2
+      },
+      "after": null
+    },
+    {
+      "ts": "2025-09-13T22:58:54.810904",
+      "user": "admin@local.com",
+      "action": "update",
+      "entity": "doctor",
+      "entity_id": 3,
+      "before": {
+        "nome": "Teste2",
+        "crm": "123456",
+        "id": 3
+      },
+      "after": {
+        "nome": "Teste23",
+        "crm": "123456",
+        "id": 3
+      }
+    },
+    {
+      "ts": "2025-09-13T22:58:54.838138",
+      "user": "admin@local.com",
+      "action": "delete",
+      "entity": "doctor",
+      "entity_id": 3,
+      "before": {
+        "nome": "Teste23",
+        "crm": "123456",
+        "id": 3
+      },
+      "after": null
+    },
+    {
+      "ts": "2025-09-13T22:59:08.520782",
+      "user": "admin@local.com",
+      "action": "update",
+      "entity": "user",
+      "entity_id": 5,
+      "before": {
+        "nome": "teste",
+        "email": "teste@teste.com",
+        "modalidades_permitidas": "*",
+        "perfil": "admin",
+        "id": 5
+      },
+      "after": {
+        "nome": "teste12",
+        "email": "teste@teste.com",
+        "modalidades_permitidas": "*",
+        "perfil": "admin",
+        "id": 5
+      }
+    },
+    {
+      "ts": "2025-09-13T22:59:15.758346",
+      "user": "admin@local.com",
+      "action": "update",
+      "entity": "user",
+      "entity_id": 5,
+      "before": {
+        "nome": "teste12",
+        "email": "teste@teste.com",
+        "modalidades_permitidas": "*",
+        "perfil": "admin",
+        "id": 5
+      },
+      "after": {
+        "nome": "teste123",
+        "email": "teste@teste.com",
+        "modalidades_permitidas": "*",
+        "perfil": "admin",
+        "id": 5
+      }
+    },
+    {
+      "ts": "2025-09-13T23:01:04.568087",
+      "user": "admin@local.com",
+      "action": "create",
+      "entity": "user",
+      "entity_id": 6,
+      "before": null,
+      "after": {
+        "nome": "juvs",
+        "email": "tteste@teste.com",
+        "modalidades_permitidas": "*",
+        "perfil": "admin",
+        "id": 0
+      }
+    },
+    {
+      "ts": "2025-09-13T23:04:43.943332",
+      "user": "admin@local.com",
+      "action": "delete",
+      "entity": "user",
+      "entity_id": 5,
+      "before": {
+        "nome": "teste123",
+        "email": "teste@teste.com",
+        "modalidades_permitidas": "*",
+        "perfil": "admin",
+        "id": 5
+      },
+      "after": null
+    },
+    {
+      "ts": "2025-09-13T23:04:48.369724",
+      "user": "admin@local.com",
+      "action": "delete",
+      "entity": "user",
+      "entity_id": 6,
+      "before": {
+        "nome": "juvs",
+        "email": "tteste@teste.com",
+        "modalidades_permitidas": "*",
+        "perfil": "admin",
+        "id": 6
+      },
+      "after": null
+    },
+    {
+      "ts": "2025-09-13T23:05:04.512952",
+      "user": "admin@local.com",
+      "action": "create",
+      "entity": "user",
+      "entity_id": 5,
+      "before": null,
+      "after": {
+        "nome": "Teste23",
+        "email": "teste@teste.com",
+        "modalidades_permitidas": "*",
+        "perfil": "admin",
+        "id": 0
+      }
+    },
+    {
+      "ts": "2025-09-13T23:12:51.908948",
+      "user": "admin@local.com",
+      "action": "create",
+      "entity": "user",
+      "entity_id": 6,
+      "before": null,
+      "after": {
+        "nome": "Teste23e",
+        "email": "teste2@teste.com",
+        "modalidades_permitidas": "*",
+        "perfil": "admin",
+        "id": 0
+      }
+    },
+    {
+      "ts": "2025-09-13T23:17:03.406185",
+      "user": "admin@local.com",
+      "action": "create",
+      "entity": "user",
+      "entity_id": 7,
+      "before": null,
+      "after": {
+        "nome": "Teste234",
+        "email": "teste4@teste.com",
+        "modalidades_permitidas": "*",
+        "perfil": "admin",
+        "id": 0
+      }
+    },
+    {
+      "ts": "2025-09-13T23:17:08.356987",
+      "user": "admin@local.com",
+      "action": "delete",
+      "entity": "user",
+      "entity_id": 6,
+      "before": {
+        "nome": "Teste23e",
+        "email": "teste2@teste.com",
+        "modalidades_permitidas": "*",
+        "perfil": "admin",
+        "id": 6
+      },
+      "after": null
+    },
+    {
+      "ts": "2025-09-13T23:17:13.942650",
+      "user": "admin@local.com",
+      "action": "delete",
+      "entity": "user",
+      "entity_id": 7,
+      "before": {
+        "nome": "Teste234",
+        "email": "teste4@teste.com",
+        "modalidades_permitidas": "*",
+        "perfil": "admin",
+        "id": 7
+      },
+      "after": null
+    },
+    {
+      "ts": "2025-09-13T23:17:19.028249",
+      "user": "admin@local.com",
+      "action": "delete",
+      "entity": "user",
+      "entity_id": 5,
+      "before": {
+        "nome": "Teste23",
+        "email": "teste@teste.com",
+        "modalidades_permitidas": "*",
+        "perfil": "admin",
+        "id": 5
+      },
+      "after": null
+    },
+    {
+      "ts": "2025-09-13T23:23:21.046677",
+      "user": "admin@local.com",
+      "action": "create",
+      "entity": "user",
+      "entity_id": 5,
+      "before": null,
+      "after": {
+        "nome": "Teste23",
+        "email": "teste@teste.com",
+        "modalidades_permitidas": "*",
+        "perfil": "admin",
+        "id": 0
+      }
+    },
+    {
+      "ts": "2025-09-13T23:23:38.691117",
+      "user": "admin@local.com",
+      "action": "create",
+      "entity": "user",
+      "entity_id": 6,
+      "before": null,
+      "after": {
+        "nome": "Teste234",
+        "email": "teste@te4ste.com",
+        "modalidades_permitidas": "*",
+        "perfil": "admin",
+        "id": 0
+      }
+    },
+    {
+      "ts": "2025-09-13T23:23:58.397067",
+      "user": "admin@local.com",
+      "action": "create",
+      "entity": "doctor",
+      "entity_id": 1,
+      "before": null,
+      "after": {
+        "nome": "Teste234",
+        "crm": "123456",
+        "id": 0
+      }
+    },
+    {
+      "ts": "2025-09-13T23:24:08.292024",
+      "user": "admin@local.com",
+      "action": "create",
+      "entity": "exam_type",
+      "entity_id": 14,
+      "before": null,
+      "after": {
+        "modalidade": "RX",
+        "nome": "Teste234",
+        "codigo": null,
+        "id": 0
+      }
+    },
+    {
+      "ts": "2025-09-13T23:24:13.951707",
+      "user": "admin@local.com",
+      "action": "delete",
+      "entity": "exam_type",
+      "entity_id": 14,
+      "before": {
+        "modalidade": "RX",
+        "nome": "Teste234",
+        "codigo": null,
+        "id": 14
+      },
+      "after": null
+    },
+    {
+      "ts": "2025-09-13T23:24:44.703548",
+      "user": "admin@local.com",
+      "action": "create",
+      "entity": "exam_type",
+      "entity_id": 14,
+      "before": null,
+      "after": {
+        "modalidade": "RX",
+        "nome": "Teste2344222",
+        "codigo": null,
+        "id": 0
+      }
+    },
+    {
+      "ts": "2025-09-13T23:25:02.581043",
+      "user": "admin@local.com",
+      "action": "update",
+      "entity": "exam_type",
+      "entity_id": 14,
+      "before": {
+        "modalidade": "RX",
+        "nome": "Teste2344222",
+        "codigo": null,
+        "id": 14
+      },
+      "after": {
+        "modalidade": "RX",
+        "nome": "Teste23442223",
+        "codigo": null,
+        "id": 14
+      }
+    },
+    {
+      "ts": "2025-09-13T23:25:02.621640",
+      "user": "admin@local.com",
+      "action": "delete",
+      "entity": "exam_type",
+      "entity_id": 4,
+      "before": {
+        "id": 4,
+        "modalidade": "CT",
+        "nome": "Abdômen",
+        "codigo": "CT002"
+      },
+      "after": null
+    },
+    {
+      "ts": "2025-09-13T23:25:09.298840",
+      "user": "admin@local.com",
+      "action": "update",
+      "entity": "doctor",
+      "entity_id": 1,
+      "before": {
+        "nome": "Teste234",
+        "crm": "123456",
+        "id": 1
+      },
+      "after": {
+        "nome": "Teste2343",
+        "crm": "123456",
+        "id": 1
+      }
+    },
+    {
+      "ts": "2025-09-13T23:25:09.325531",
+      "user": "admin@local.com",
+      "action": "delete",
+      "entity": "doctor",
+      "entity_id": 1,
+      "before": {
+        "nome": "Teste2343",
+        "crm": "123456",
+        "id": 1
+      },
+      "after": null
+    },
+    {
+      "ts": "2025-09-13T23:25:16.854526",
+      "user": "admin@local.com",
+      "action": "update",
+      "entity": "user",
+      "entity_id": 6,
+      "before": {
+        "nome": "Teste234",
+        "email": "teste@te4ste.com",
+        "modalidades_permitidas": "*",
+        "perfil": "admin",
+        "id": 6
+      },
+      "after": {
+        "nome": "Teste2343",
+        "email": "teste@te4ste.com",
+        "modalidades_permitidas": "*",
+        "perfil": "admin",
+        "id": 6
+      }
+    },
+    {
+      "ts": "2025-09-14T00:07:31.147762",
+      "user": "admin@local.com",
+      "action": "create",
+      "entity": "user",
+      "entity_id": 7,
+      "before": null,
+      "after": {
+        "nome": "Teste2345",
+        "email": "teste@te54ste.com",
+        "modalidades_permitidas": "*",
+        "perfil": "admin",
+        "id": 0
+      }
+    },
+    {
+      "ts": "2025-09-14T00:07:53.788576",
+      "user": "admin@local.com",
+      "action": "update",
+      "entity": "user",
+      "entity_id": 7,
+      "before": {
+        "nome": "Teste2345",
+        "email": "teste@te54ste.com",
+        "modalidades_permitidas": "*",
+        "perfil": "admin",
+        "id": 7
+      },
+      "after": {
+        "nome": "Teste23456",
+        "email": "teste@te54ste.com",
+        "modalidades_permitidas": "*",
+        "perfil": "admin",
+        "id": 7
+      }
+    },
+    {
+      "ts": "2025-09-14T00:08:03.267077",
+      "user": "admin@local.com",
+      "action": "create",
+      "entity": "doctor",
+      "entity_id": 1,
+      "before": null,
+      "after": {
+        "nome": "Teste234",
+        "crm": null,
+        "id": 0
+      }
+    },
+    {
+      "ts": "2025-09-14T00:08:10.854512",
+      "user": "admin@local.com",
+      "action": "create",
+      "entity": "doctor",
+      "entity_id": 2,
+      "before": null,
+      "after": {
+        "nome": "Teste2345",
+        "crm": null,
+        "id": 0
+      }
+    },
+    {
+      "ts": "2025-09-14T00:08:16.678623",
+      "user": "admin@local.com",
+      "action": "update",
+      "entity": "doctor",
+      "entity_id": 1,
+      "before": {
+        "nome": "Teste234",
+        "crm": null,
+        "id": 1
+      },
+      "after": {
+        "nome": "Teste2346",
+        "crm": null,
+        "id": 1
+      }
+    },
+    {
+      "ts": "2025-09-14T00:08:30.218791",
+      "user": "admin@local.com",
+      "action": "create",
+      "entity": "exam_type",
+      "entity_id": 15,
+      "before": null,
+      "after": {
+        "modalidade": "RX",
+        "nome": "6542189451",
+        "codigo": null,
+        "id": 0
+      }
+    },
+    {
+      "ts": "2025-09-14T00:08:36.691909",
+      "user": "admin@local.com",
+      "action": "update",
+      "entity": "exam_type",
+      "entity_id": 14,
+      "before": {
+        "modalidade": "RX",
+        "nome": "Teste23442223",
+        "codigo": null,
+        "id": 14
+      },
+      "after": {
+        "modalidade": "RX",
+        "nome": "Teste234422231",
+        "codigo": null,
+        "id": 14
+      }
+    },
+    {
+      "ts": "2025-09-14T00:14:52.001475",
+      "user": "admin@local.com",
+      "action": "create",
+      "entity": "user",
+      "entity_id": 8,
+      "before": null,
+      "after": {
+        "nome": "Teste23457",
+        "email": "teste@te547ste.com",
+        "modalidades_permitidas": "*",
+        "perfil": "admin",
+        "id": 0
+      }
+    },
+    {
+      "ts": "2025-09-14T00:21:40.116022",
+      "user": "admin@local.com",
+      "action": "update",
+      "entity": "settings",
+      "entity_id": "theme",
+      "before": {
+        "portal_name": "Portal Radiológico",
+        "theme": "Lux",
+        "logo_file": null,
+        "logo_height_px": 96,
+        "logo_url": "/app/assets/logo_custom.jpeg"
+      },
+      "after": {
+        "portal_name": "Portal Radiológico",
+        "theme": "Lux",
+        "logo_height_px": 200,
+        "logo_url": "/app/assets/logo_custom.jpeg"
+      }
+    },
+    {
+      "ts": "2025-09-14T11:45:09.277463",
+      "user": "admin@local.com",
+      "action": "update",
+      "entity": "settings",
+      "entity_id": "theme",
+      "before": {
+        "portal_name": "Portal Radiológico",
+        "theme": "Lux",
+        "logo_file": null,
+        "logo_height_px": 200,
+        "logo_url": "/app/assets/logo_custom.jpeg"
+      },
+      "after": {
+        "portal_name": "Portal Radiológico",
+        "theme": "Lux",
+        "logo_height_px": 284,
+        "logo_url": "/app/assets/logo_custom.jpeg"
+      }
+    }
+  ]
+}

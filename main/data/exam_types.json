@@ -1,0 +1,70 @@
+{
+  "exam_types": [
+    {
+      "id": 5,
+      "modalidade": "CT",
+      "nome": "Tórax",
+      "codigo": "CT003"
+    },
+    {
+      "id": 6,
+      "modalidade": "CT",
+      "nome": "Coluna Lombar",
+      "codigo": "CT004"
+    },
+    {
+      "id": 7,
+      "modalidade": "US",
+      "nome": "Abdômen total",
+      "codigo": "US001"
+    },
+    {
+      "id": 8,
+      "modalidade": "US",
+      "nome": "Pélvico",
+      "codigo": "US002"
+    },
+    {
+      "id": 9,
+      "modalidade": "MR",
+      "nome": "Crânio",
+      "codigo": "MR001"
+    },
+    {
+      "id": 10,
+      "modalidade": "MR",
+      "nome": "Joelho",
+      "codigo": "MR002"
+    },
+    {
+      "id": 11,
+      "modalidade": "MR",
+      "nome": "Coluna Lombo-sacra",
+      "codigo": "MR003"
+    },
+    {
+      "id": 12,
+      "modalidade": "MG",
+      "nome": "Mamografia Bilateral",
+      "codigo": "MG001"
+    },
+    {
+      "id": 13,
+      "modalidade": "NM",
+      "nome": "Cintilografia da Tireoide",
+      "codigo": "NM001"
+    },
+    {
+      "modalidade": "RX",
+      "nome": "Teste234422231",
+      "codigo": null,
+      "id": 14
+    },
+    {
+      "modalidade": "RX",
+      "nome": "6542189451",
+      "codigo": null,
+      "id": 15
+    }
+  ]
+}

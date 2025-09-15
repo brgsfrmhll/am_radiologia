@@ -1,0 +1,317 @@
+{
+  "exams": [
+    {
+      "id": 1,
+      "exam_id": "E-0001",
+      "idade": 45,
+      "modalidade": "CT",
+      "exame": "Tomografia - Crânio",
+      "medico": "Dr. João Silva",
+      "data_hora": "2025-09-09T18:36:32.488185",
+      "user_email": "admin@local",
+      "materiais_usados": [
+        {
+          "material_id": 1,
+          "quantidade": 80.0
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "exam_id": "E-0002",
+      "idade": 61,
+      "modalidade": "CT",
+      "exame": "Tomografia - Abdômen",
+      "medico": "Dra. Maria Souza",
+      "data_hora": "2025-09-10T16:36:32.488185",
+      "user_email": "admin@local",
+      "materiais_usados": [
+        {
+          "material_id": 1,
+          "quantidade": 60.0
+        }
+      ]
+    },
+    {
+      "id": 3,
+      "exam_id": "E-0003",
+      "idade": 34,
+      "modalidade": "RX",
+      "exame": "Raio-X - Tórax PA/L",
+      "medico": "Dr. João Silva",
+      "data_hora": "2025-09-10T20:36:32.488185",
+      "user_email": "admin@local",
+      "materiais_usados": []
+    },
+    {
+      "id": 4,
+      "exam_id": "E-0004",
+      "idade": 28,
+      "modalidade": "US",
+      "exame": "Ultrassom - Abdômen total",
+      "medico": "Dra. Carla Mendes",
+      "data_hora": "2025-09-11T14:36:32.488185",
+      "user_email": "admin@local",
+      "materiais_usados": [
+        {
+          "material_id": 2,
+          "quantidade": 2.0
+        }
+      ]
+    },
+    {
+      "id": 5,
+      "exam_id": "E-0005",
+      "idade": 52,
+      "modalidade": "MR",
+      "exame": "Ressonância - Joelho",
+      "medico": "Dr. Paulo Nogueira",
+      "data_hora": "2025-09-12T00:36:32.488185",
+      "user_email": "admin@local",
+      "materiais_usados": [
+        {
+          "material_id": 1,
+          "quantidade": 15.0
+        },
+        {
+          "material_id": 2,
+          "quantidade": 1.0
+        }
+      ]
+    },
+    {
+      "id": 6,
+      "exam_id": "E-0006",
+      "idade": 40,
+      "modalidade": "CT",
+      "exame": "Tomografia - Tórax",
+      "medico": "Dra. Maria Souza",
+      "data_hora": "2025-09-12T15:36:32.488185",
+      "user_email": "admin@local",
+      "materiais_usados": [
+        {
+          "material_id": 1,
+          "quantidade": 75.0
+        }
+      ]
+    },
+    {
+      "id": 7,
+      "exam_id": "21",
+      "modalidade": "CT",
+      "exame": "Tomografia - Tórax",
+      "medico": "Dr. João Silva",
+      "data_hora": "2025-09-02T00:00:00",
+      "idade": 25,
+      "user_email": "",
+      "materiais_usados": [
+        {
+          "material_id": 1,
+          "quantidade": 1.0,
+          "lote_id": 101,
+          "valor_unitario": 1.5,
+          "subtotal": 1.5
+        },
+        {
+          "material_id": 2,
+          "quantidade": 2.0,
+          "lote_id": 202,
+          "valor_unitario": 2.0,
+          "subtotal": 4.0
+        }
+      ],
+      "custo_estimado_total": 5.5
+    },
+    {
+      "id": 8,
+      "exam_id": "25",
+      "modalidade": "CT",
+      "exame": "Tomografia - Tórax",
+      "medico": "Dr. João Silva",
+      "data_hora": "2025-09-11T10:00:00",
+      "idade": 25,
+      "user_email": "",
+      "materiais_usados": [
+        {
+          "material_id": 1,
+          "quantidade": 10.0,
+          "lote_id": 101,
+          "valor_unitario": 1.5,
+          "subtotal": 15.0
+        },
+        {
+          "material_id": 2,
+          "quantidade": 10.0,
+          "lote_id": 202,
+          "valor_unitario": 2.0,
+          "subtotal": 20.0
+        }
+      ],
+      "custo_estimado_total": 35.0
+    },
+    {
+      "id": 9,
+      "exam_id": "E12",
+      "modalidade": "CT",
+      "exame": "Tomografia - Tórax",
+      "medico": "Teste2345",
+      "data_hora": "2025-09-09T10:00:00",
+      "idade": 20,
+      "user_email": "",
+      "materiais_usados": [
+        {
+          "material_id": 2,
+          "quantidade": 2.0,
+          "lote_id": 202,
+          "valor_unitario": 2.0,
+          "subtotal": 4.0
+        },
+        {
+          "material_id": 3,
+          "quantidade": 1.0,
+          "lote_id": 301,
+          "valor_unitario": 0.75,
+          "subtotal": 0.75
+        }
+      ],
+      "custo_estimado_total": 4.75
+    },
+    {
+      "id": 10,
+      "exam_id": "teste1",
+      "modalidade": "RX",
+      "exame": "Raio-X - Teste234422231",
+      "medico": "Dr. João Silva",
+      "data_hora": "2025-09-14T11:46:00",
+      "idade": 20,
+      "materiais_usados": [],
+      "user_email": "",
+      "cancelado": true
+    },
+    {
+      "id": 11,
+      "exam_id": "teste",
+      "modalidade": "RX",
+      "exame": "Raio-X - 6542189451",
+      "medico": "Dr. João Silva",
+      "data_hora": "2025-09-15T01:11:10.153268",
+      "idade": 10,
+      "user_email": "",
+      "materiais_usados": [
+        {
+          "material_id": 4,
+          "quantidade": 5.0,
+          "lote_id": 401,
+          "valor_unitario": 1.0,
+          "subtotal": 5.0
+        },
+        {
+          "material_id": 5,
+          "quantidade": 5.0,
+          "lote_id": 501,
+          "valor_unitario": 1.0,
+          "subtotal": 5.0
+        }
+      ],
+      "custo_estimado_total": 10.0
+    },
+    {
+      "id": 12,
+      "exam_id": "teste",
+      "modalidade": "US",
+      "exame": "Ultrassom - Pélvico",
+      "medico": "Teste2345",
+      "data_hora": "2025-09-15T00:00:00",
+      "idade": 10,
+      "user_email": "",
+      "materiais_usados": [
+        {
+          "material_id": 6,
+          "quantidade": 10.0,
+          "lote_id": 1,
+          "valor_unitario": 1.0,
+          "subtotal": 10.0
+        }
+      ],
+      "custo_estimado_total": 10.0
+    },
+    {
+      "id": 13,
+      "exam_id": "teste",
+      "modalidade": "MR",
+      "exame": "Ressonância - Joelho",
+      "medico": "Teste2345",
+      "data_hora": "2025-09-15T00:00:00",
+      "idade": 10,
+      "user_email": "",
+      "materiais_usados": [
+        {
+          "material_id": 5,
+          "quantidade": 5.0,
+          "lote_id": 502,
+          "valor_unitario": 1.0,
+          "subtotal": 5.0
+        }
+      ],
+      "custo_estimado_total": 5.0
+    },
+    {
+      "id": 14,
+      "exam_id": "teste",
+      "modalidade": "MR",
+      "exame": "Ressonância - Joelho",
+      "medico": "Teste2345",
+      "data_hora": "2025-09-15T00:00:00",
+      "idade": 10,
+      "user_email": "",
+      "materiais_usados": [
+        {
+          "material_id": 7,
+          "quantidade": 5.0,
+          "lote_id": 503,
+          "valor_unitario": 1.0,
+          "subtotal": 5.0
+        }
+      ],
+      "custo_estimado_total": 5.0
+    },
+    {
+      "id": 15,
+      "exam_id": "teste",
+      "modalidade": "MR",
+      "exame": "Ressonância - Joelho",
+      "medico": "Teste2345",
+      "data_hora": "2025-09-15T00:00:00",
+      "idade": 10,
+      "user_email": "",
+      "materiais_usados": [
+        {
+          "material_id": 6,
+          "quantidade": 30.0,
+          "lote_id": 1,
+          "valor_unitario": 1.0,
+          "subtotal": 30.0
+        }
+      ],
+      "custo_estimado_total": 30.0
+    },
+    {
+      "id": 16,
+      "exam_id": "teste",
+      "modalidade": "MG",
+      "exame": "Mamografia - Mamografia Bilateral",
+      "medico": "Dr. João Silva",
+      "data_hora": "2025-09-15T00:00:00",
+      "idade": 5,
+      "user_email": "",
+      "materiais_usados": [
+        {
+          "material_id": 8,
+          "lote_id": 504,
+          "quantidade": 2
+        }
+      ],
+      "custo_estimado_total": 1.0
+    }
+  ]
+}

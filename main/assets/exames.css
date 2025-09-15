@@ -1,0 +1,19 @@
+/* Força a exibição da tab ativa dentro do modal de edição (dbc.Tabs) */
+#ex_edit_modal .modal-body .ex-tabs .tab-content > .tab-pane {
+  display: none !important;       /* esconde todas por padrão */
+  opacity: 0;
+}
+
+#ex_edit_modal .modal-body .ex-tabs .tab-content > .tab-pane.active {
+  display: block !important;      /* mostra somente a ativa */
+  opacity: 1 !important;
+}
+
+/* Aparência opcional das abas */
+#ex_edit_modal .ex-tabs .nav-link.active {
+  font-weight: 600;
+  border-bottom: 2px solid var(--bs-primary);
+}
+#ex_edit_modal .ex-tabs .nav-link {
+  border: 0;
+}

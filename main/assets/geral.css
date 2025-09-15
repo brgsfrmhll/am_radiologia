@@ -1,0 +1,128 @@
+/* ====== Base tokens (agora herdam do tema Bootstrap/Bootswatch) ====== */
+:root{
+  --bg: var(--bs-body-bg);
+  --card: var(--bs-card-bg, var(--bs-body-bg));
+  --txt: var(--bs-body-color);
+  --muted: var(--bs-secondary-color, #6c757d);
+  --brand: var(--bs-primary);
+  --brand-2: var(--bs-info);
+  --bdr: var(--bs-border-color, rgba(0,0,0,.125));
+  --shadow: var(--bs-box-shadow, 0 10px 30px rgba(0,0,0,.15));
+}
+
+.page-gerencial{ color:var(--txt); }
+
+/* ====== Título da página ====== */
+.page-title{
+  display:flex; align-items:center; justify-content:space-between;
+  margin:0 2px 12px;
+}
+.page-title .toolbar{ min-height:1px }
+
+/* ====== Cards ====== */
+.g-card{
+  background: var(--card);
+  border: 1px solid var(--bdr);
+  box-shadow: var(--shadow);
+  border-radius: 16px;
+}
+.g-card .card-header{
+  font-weight:600; letter-spacing:.02em;
+  background: var(--bs-card-cap-bg, var(--bs-tertiary-bg));
+  color: var(--txt);
+  border-bottom: 1px solid var(--bdr);
+  border-top-left-radius: 16px; border-top-right-radius: 16px;
+}
+
+/* ====== Tabelas ====== */
+.table-compact td, .table-compact th{ padding:.45rem .6rem }
+.table-sticky thead th{
+  position: sticky; top: 0; z-index: 2;
+  background: var(--bs-tertiary-bg);
+  backdrop-filter: blur(6px);
+  border-bottom: 1px solid var(--bdr);
+}
+.table-actions .btn{ white-space:nowrap }
+.shadow-soft{ box-shadow: var(--shadow) }
+.rounded-2xl{ border-radius: 16px !important }
+
+/* ====== Botões “soft” alinhados ao tema ====== */
+.btn-soft{
+  background: color-mix(in oklab, var(--brand) 12%, transparent);
+  border: 1px solid color-mix(in oklab, var(--brand) 35%, var(--bdr));
+  color: var(--txt);
+}
+.btn-soft:hover{
+  background: color-mix(in oklab, var(--brand) 18%, transparent);
+}
+
+/* ===== Tabs (Dash) ===== */
+.dash-tabs .tab{
+  background: var(--bs-tertiary-bg);
+  padding:10px 14px; margin-right:6px;
+  border:1px solid var(--bdr); border-bottom:2px solid transparent;
+  border-radius: 10px 10px 0 0; color:var(--txt);
+}
+.dash-tabs .tab--selected{
+  background: color-mix(in oklab, var(--brand) 8%, var(--bs-tertiary-bg));
+  border-color: color-mix(in oklab, var(--brand) 40%, var(--bdr));
+  border-bottom-color: transparent; font-weight:600;
+}
+
+/* ===== Floating Action Button (FAB) ===== */
+.fab{
+  position: fixed; right: 24px; bottom: 24px; z-index: 1090;
+}
+.fab .fab-main{
+  width: 56px; height: 56px; border-radius: 9999px;
+  display: inline-flex; align-items: center; justify-content: center;
+  box-shadow: var(--shadow); font-size: 22px;
+  border: 1px solid color-mix(in oklab, var(--brand) 35%, var(--bdr));
+}
+
+/* ===== Modais (agora claros/tema-aware) ===== */
+.modal-content{
+  background: var(--bg);
+  color: var(--txt);
+  border:1px solid var(--bdr);
+  box-shadow: var(--shadow);
+}
+.modal-header{ border-bottom:1px solid var(--bdr) }
+.modal-footer{ border-top:1px solid var(--bdr) }
+
+/* ===== FAB modal maior (apenas quando tiver a classe .modal-themed) ===== */
+.modal-themed .modal-dialog{
+  /* XL real + limite agradável de viewport */
+  max-width: min(1100px, 92vw);
+}
+.modal-themed .modal-content{
+  border-radius: 16px;
+}
+.modal-themed .modal-body{
+  /* Altura confortável com rolagem interna */
+  max-height: calc(90vh - 120px);
+  overflow: auto;
+}
+
+/* ===== Ajustes finos opcionais ===== */
+.form-control, .form-select{
+  background-color: var(--bs-body-bg);
+  color: var(--txt);
+  border-color: var(--bdr);
+}
+.form-control:focus, .form-select:focus{
+  border-color: color-mix(in oklab, var(--brand) 50%, var(--bdr));
+  box-shadow: 0 0 0 .2rem color-mix(in oklab, var(--brand) 20%, transparent);
+}
+
+/* Tooltips seguem o tema */
+.tooltip-inner{
+  background-color: var(--bs-dark, #212529);
+  color: #fff;
+}
+.bs-tooltip-auto[data-popper-placement^=left] .tooltip-arrow::before,
+.bs-tooltip-auto[data-popper-placement^=right] .tooltip-arrow::before,
+.bs-tooltip-auto[data-popper-placement^=top] .tooltip-arrow::before,
+.bs-tooltip-auto[data-popper-placement^=bottom] .tooltip-arrow::before{
+  border-color: var(--bs-dark, #212529);
+}
