@@ -6,7 +6,7 @@ from datetime import datetime, time
 import dash
 from dash import html, dcc, Input, Output, State, no_update, ctx
 import dash_bootstrap_components as dbc
-import dash_mantine_components as dmc  # mantido só para Autocomplete (fica elegante)
+import dash_mantine_components as dmc  # mantido só para Autocomplete/Textarea
 
 dash.register_page(__name__, path="/exames", name="Exames")
 
@@ -63,7 +63,7 @@ def _iso_to_input_dt(dt_iso):
         return None
 
 def _clamp_future_to_now(dt_str_or_iso: str | None) -> str:
-    """Aceita 'YYYY-MM-DDTHH:MM' ou ISO. Retorna ISO, nunca futuro."""
+    """Aceita 'YYYY-MM-DDTHH:MM' ou ISO. Retorna ISO, nunca futuro (com base em UTC)."""
     now = datetime.utcnow()
     if not dt_str_or_iso:
         return now.isoformat()
@@ -131,6 +131,7 @@ def _filter_exams(data, mod, exam, doc, dt_ini, dt_fim, text):
                 str(e.get("modalidade") or ""),
                 str(e.get("exame") or ""),
                 str(e.get("medico") or ""),
+                str(e.get("observacao") or ""),  # inclui observação na busca livre
             ]).lower()
             if text not in blob:
                 continue
@@ -222,6 +223,10 @@ def _materials_summary(items):
         html.Div(f"Custo estimado: {_fmt_money(total_cost)}", className="small fw-semibold"),
     ])
 
+def _truncate(text: str, max_chars=60) -> str:
+    t = (text or "").strip()
+    return t if len(t) <= max_chars else t[:max_chars - 1] + "…"
+
 # ========= Layout =========
 def filters_bar():
     # Filtros com inputs nativos (limpos): data (De/Até) usando type="date"
@@ -248,7 +253,7 @@ def filters_bar():
                     limit=100,
                     clearable=True,
                 ), md=3),
-                dbc.Col(dbc.Input(id="ex_f_text", placeholder="Busca livre (ID, Exam ID, exame, médico)"), md=4),
+                dbc.Col(dbc.Input(id="ex_f_text", placeholder="Busca livre (ID, Exam ID, exame, médico, observação)"), md=4),
             ], className="g-2 mb-2"),
 
             dbc.Row([
@@ -370,6 +375,29 @@ def cancel_exam_modal():
         ]
     )
 
+def observation_modal():
+    return dbc.Modal(
+        id="ex_obs_modal", is_open=False, centered=True, size="lg",
+        children=[
+            dbc.ModalHeader(dbc.ModalTitle([html.I(className="fa-regular fa-note-sticky me-2"),
+                                            "Observação do Exame"])),
+            dbc.ModalBody([
+                html.Div(id="ex_obs_header", className="mb-2 text-muted"),
+                dmc.Textarea(
+                    id="ex_obs_textarea",
+                    placeholder="Digite a observação...",
+                    autosize=True,
+                    minRows=4, maxRows=14
+                )
+            ]),
+            dbc.ModalFooter([
+                dbc.Button("Fechar", id="ex_obs_close_btn", className="me-2"),
+                dbc.Button([html.I(className="fa-solid fa-check me-2"), "Salvar observação"],
+                           id="ex_obs_save_btn", color="primary"),
+            ])
+        ]
+    )
+
 layout = dbc.Container(
     [
         filters_bar(),
@@ -377,6 +405,7 @@ layout = dbc.Container(
         materials_modal(),
         confirm_delete_modal(),
         cancel_exam_modal(),
+        observation_modal(),
         # Stores de estado
         dcc.Store(id="ex_editing_id", data=None),            # linha em edição (id do exame)
         dcc.Store(id="ex_refresh", data=""),                 # sinal de recarregar tabela
@@ -386,6 +415,7 @@ layout = dbc.Container(
         dcc.Store(id="ex_mat_edit_index", data=None),        # índice em edição no modal
         dcc.Store(id="ex_del_index", data=None),             # índice aguardando confirmação de remoção
         dcc.Store(id="ex_cancel_id", data=None),             # exame que será cancelado
+        dcc.Store(id="ex_obs_id", data=None),                # exame cujo obs está sendo editado
     ],
     fluid=True
 )
@@ -420,7 +450,7 @@ def _clear_filters(n):
 def _render_table(rows, editing_id):
     header = html.Thead(html.Tr([
         html.Th("ID"), html.Th("Exam ID"), html.Th("Modalidade"), html.Th("Exame"),
-        html.Th("Médico"), html.Th("Data/Hora"), html.Th("Idade"), html.Th("Ações")
+        html.Th("Médico"), html.Th("Data/Hora"), html.Th("Idade"), html.Th("Observação"), html.Th("Ações")
     ]))
     body = []
     for e in rows:
@@ -434,6 +464,8 @@ def _render_table(rows, editing_id):
             cur_doc = e.get("medico")
             cur_dt = _iso_to_input_dt(e.get("data_hora"))
             cur_age = e.get("idade")
+            obs_full = (e.get("observacao") or "").strip()
+            obs_view = _truncate(obs_full, max_chars=60)
 
             row = html.Tr([
                 html.Td(exid),
@@ -468,6 +500,12 @@ def _render_table(rows, editing_id):
                 html.Td(dbc.Input(
                     id={"type": "ex_field", "name": "age", "exid": exid},
                     type="number", min=0, max=120, value=cur_age)),
+                html.Td(
+                    html.Div(className="d-flex align-items-center gap-2", children=[
+                        html.Span(obs_view, title=obs_full, className="text-truncate", style={"maxWidth": "220px"}),
+                        dbc.Button("Obs.", id={"role": "obs", "exid": exid}, size="sm", color="secondary", outline=True)
+                    ])
+                ),
                 html.Td(html.Div([
                     dbc.Button([html.I(className="fa-solid fa-check me-1"), "Salvar"],
                                id={"type": "ex_btn", "role": "save", "exid": exid},
@@ -478,6 +516,8 @@ def _render_table(rows, editing_id):
                 ], className="d-flex"))
             ], className=row_class)
         else:
+            obs_full = (e.get("observacao") or "").strip()
+            obs_view = _truncate(obs_full, max_chars=60)
             row = html.Tr([
                 html.Td(exid),
                 html.Td(e.get("exam_id")),
@@ -489,6 +529,13 @@ def _render_table(rows, editing_id):
                 html.Td(e.get("medico")),
                 html.Td(format_dt_br(e.get("data_hora"))),
                 html.Td(e.get("idade")),
+                html.Td(
+                    html.Div(className="d-flex align-items-center gap-2", children=[
+                        html.Span(obs_view, title=obs_full, className="text-truncate", style={"maxWidth": "220px"}),
+                        dbc.Button("Obs.", id={"role": "obs", "exid": exid}, size="sm", color="secondary", outline=True,
+                                   disabled=bool(e.get("cancelado")))
+                    ])
+                ),
                 html.Td(_row_actions(exid, cancelado))
             ], className=row_class)
         body.append(row)
@@ -555,7 +602,7 @@ def _toggle_edit(n_edit_list, n_cancel_list, cur_editing, edit_ids, cancel_ids):
         return None
     raise dash.exceptions.PreventUpdate
 
-# (6) Salvar linha editada
+# (6) Salvar linha editada (sem observação; observação é salva no modal próprio)
 @dash.callback(
     Output("ex_feedback", "children", allow_duplicate=True),
     Output("ex_editing_id", "data", allow_duplicate=True),
@@ -619,6 +666,7 @@ def _save_row(n_list,
         "medico": (medico or "").strip(),
         "data_hora": dt_iso,
         "idade": int(idade) if idade not in (None, "") else None,
+        # observacao fica como está; é atualizada via modal próprio
     })
 
     add_or_update_exam(new_exam)
@@ -1009,7 +1057,7 @@ def _apply_materials(n, exid, new_items, old_items):
 
     return False, dbc.Alert("Materiais atualizados e estoque ajustado.", color="success"), f"refresh@{datetime.utcnow().isoformat()}"
 
-# (16) Fechar modal sem salvar
+# (16) Fechar modal sem salvar (materiais)
 @dash.callback(
     Output("ex_materials_modal", "is_open", allow_duplicate=True),
     Input("ex_materials_close_btn", "n_clicks"),
@@ -1020,7 +1068,7 @@ def _close_modal(n):
         raise dash.exceptions.PreventUpdate
     return False
 
-# (17) Exportação CSV
+# (17) Exportação CSV (inclui Observação)
 @dash.callback(
     Output("ex_download", "data"),
     Input("ex_btn_export", "n_clicks"),
@@ -1038,14 +1086,15 @@ def _export_csv(n, mod, exam, doc, dt_ini, dt_fim, text):
     data = _filter_exams(list_exams(), mod, exam, doc, dt_ini, dt_fim, text)
     output = io.StringIO()
     writer = csv.writer(output, delimiter=";")
-    writer.writerow(["ID", "Exam ID", "Modalidade", "Exame", "Médico", "Data/Hora", "Idade", "Cancelado"])
+    writer.writerow(["ID", "Exam ID", "Modalidade", "Exame", "Médico", "Data/Hora", "Idade", "Cancelado", "Observação"])
     for e in data:
         writer.writerow([
             e.get("id"), e.get("exam_id"),
             MOD_LABEL.get(e.get("modalidade"), e.get("modalidade")),
             e.get("exame"), e.get("medico"),
             format_dt_br(e.get("data_hora")), e.get("idade"),
-            "Sim" if e.get("cancelado") else "Não"
+            "Sim" if e.get("cancelado") else "Não",
+            (e.get("observacao") or "").replace("\n", " ").strip()
         ])
     return dict(content=output.getvalue(), filename="exames.csv")
 
@@ -1130,3 +1179,64 @@ def _confirm_cancel_exam(n, exid):
     add_or_update_exam(new_exam)
 
     return dbc.Alert("Exame cancelado. Materiais estornados ao estoque.", color="success"), f"refresh@{datetime.utcnow().isoformat()}", False
+
+# (20) Abrir modal de Observação (via botão "Obs.")
+@dash.callback(
+    Output("ex_obs_modal", "is_open", allow_duplicate=True),
+    Output("ex_obs_id", "data", allow_duplicate=True),
+    Output("ex_obs_textarea", "value", allow_duplicate=True),
+    Output("ex_obs_header", "children", allow_duplicate=True),
+    Input({"role": "obs", "exid": dash.ALL}, "n_clicks"),
+    State({"role": "obs", "exid": dash.ALL}, "id"),
+    prevent_initial_call=True
+)
+def _open_obs_modal(n_list, btn_ids):
+    trg = ctx.triggered_id
+    if not isinstance(trg, dict) or trg.get("role") != "obs":
+        raise dash.exceptions.PreventUpdate
+    pos = None
+    for i, bid in enumerate(btn_ids or []):
+        if bid.get("exid") == trg.get("exid"):
+            pos = i
+            break
+    if pos is None or not n_list or pos >= len(n_list) or (n_list[pos] or 0) <= 0:
+        raise dash.exceptions.PreventUpdate
+
+    exid = trg.get("exid")
+    ex = next((x for x in list_exams() if x.get("id") == exid), None)
+    if not ex:
+        raise dash.exceptions.PreventUpdate
+    header = html.Small(f"Exame: {ex.get('exam_id') or exid} • {ex.get('exame') or ''}", className="text-muted")
+    return True, exid, (ex.get("observacao") or ""), header
+
+# (21) Fechar modal de Observação (sem salvar)
+@dash.callback(
+    Output("ex_obs_modal", "is_open", allow_duplicate=True),
+    Input("ex_obs_close_btn", "n_clicks"),
+    prevent_initial_call=True
+)
+def _close_obs_modal(n):
+    if not n:
+        raise dash.exceptions.PreventUpdate
+    return False
+
+# (22) Salvar Observação
+@dash.callback(
+    Output("ex_feedback", "children", allow_duplicate=True),
+    Output("ex_obs_modal", "is_open", allow_duplicate=True),
+    Output("ex_refresh", "data", allow_duplicate=True),
+    Input("ex_obs_save_btn", "n_clicks"),
+    State("ex_obs_id", "data"),
+    State("ex_obs_textarea", "value"),
+    prevent_initial_call=True
+)
+def _save_observation(n, exid, text):
+    if not n or not exid:
+        raise dash.exceptions.PreventUpdate
+    ex = next((x for x in list_exams() if x.get("id") == exid), None)
+    if not ex:
+        return dbc.Alert("Exame não encontrado.", color="danger"), False, ""
+    new_exam = dict(ex)
+    new_exam["observacao"] = (text or "").strip()
+    add_or_update_exam(new_exam)
+    return dbc.Alert("Observação atualizada com sucesso!", color="success"), False, f"refresh@{datetime.utcnow().isoformat()}"
