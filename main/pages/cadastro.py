@@ -1,6 +1,9 @@
-# pages/cadastro.py  (QoL + Estoque por lote + FIFO + auto refresh + clamp datetime + debug off)
+# pages/cadastro.py  (QoL + Estoque por lote + FIFO + auto refresh + clamp datetime + debug off + hora São Paulo + observação)
 import json
-from datetime import datetime
+import re
+import requests
+from datetime import datetime, timezone
+from zoneinfo import ZoneInfo
 
 import dash
 from dash import html, dcc, Input, Output, State, ALL, no_update, ctx
@@ -32,6 +35,13 @@ except Exception:
 
 dash.register_page(__name__, path="/cadastro", name="Cadastro")
 
+# =========================
+# Configuração de hora SP (API + fallback)
+# =========================
+TIME_API_URL = "https://worldtimeapi.org/api/timezone/America/Sao_Paulo"
+TIME_API_TIMEOUT = 2.5  # segundos
+TZ_SP = ZoneInfo("America/Sao_Paulo")
+
 # =============== Helpers de debug & datas ===============
 def _dbg(event, **kw):
     """Silencioso quando DEBUG=False."""
@@ -42,25 +52,82 @@ def _dbg(event, **kw):
     print(line)
     return line
 
-def _now_utc_iso():
-    # ISO naive (UTC) para casar com componentes
-    return datetime.utcnow().replace(tzinfo=None).isoformat()
-
-def _clamp_future_to_now(dt_iso_str: str | None) -> str:
+def _get_sp_now_online() -> datetime:
     """
-    Retorna:
-      - agora se None
-      - mesmo valor se <= agora
-      - agora se for > agora (nunca futuro)
+    Obtém a hora oficial de São Paulo via API pública, com fallback para o relógio local do servidor.
+    Retorna timezone-aware em America/Sao_Paulo.
     """
-    now = datetime.utcnow()
-    if not dt_iso_str:
-        return now.isoformat()
     try:
-        dt = datetime.fromisoformat(dt_iso_str.replace("Z", ""))
+        r = requests.get(TIME_API_URL, timeout=TIME_API_TIMEOUT)
+        r.raise_for_status()
+        data = r.json()
+        if "unixtime" in data:
+            ts = int(data["unixtime"])
+            return datetime.fromtimestamp(ts, tz=TZ_SP)
+        if "datetime" in data:
+            dt = datetime.fromisoformat(data["datetime"])
+            return dt.astimezone(TZ_SP)
     except Exception:
-        return now.isoformat()
-    return dt.isoformat() if dt <= now else now.isoformat()
+        pass
+    return datetime.now(TZ_SP)
+
+def _sp_today_iso_date() -> str:
+    """YYYY-MM-DD do 'hoje' em São Paulo (para maxDate do calendário)."""
+    return _get_sp_now_online().date().isoformat()
+
+def _now_sp_to_utc_iso() -> str:
+    """
+    'Agora' de São Paulo, convertido para UTC e retornado como ISO naive (compatível com componentes).
+    """
+    now_sp = _get_sp_now_online()
+    now_utc = now_sp.astimezone(timezone.utc).replace(tzinfo=None)
+    return now_utc.isoformat()
+
+def _iso_to_sp(dt_iso_str: str) -> datetime:
+    """
+    Converte uma string ISO (Z ou naive/UTC) para datetime timezone-aware em São Paulo.
+    """
+    if not dt_iso_str:
+        return _get_sp_now_online()
+    s = dt_iso_str.strip().replace("Z", "")
+    dt = datetime.fromisoformat(s)
+    if dt.tzinfo is None:
+        dt = dt.replace(tzinfo=timezone.utc)
+    return dt.astimezone(TZ_SP)
+
+def _sp_dt_to_utc_iso(dt_sp: datetime) -> str:
+    """Converte um datetime timezone-aware (SP) para ISO UTC naive (armazenamento)."""
+    dt_utc = dt_sp.astimezone(timezone.utc).replace(tzinfo=None)
+    return dt_utc.isoformat()
+
+def _clamp_future_to_sp_now_iso(dt_iso_str: str | None) -> str:
+    """
+    Regras:
+      - se None → agora (UTC ISO)
+      - se dt <= agora(SP) → mantém (converte p/ UTC ISO)
+      - se dt > agora(SP) → agora (UTC ISO)
+    """
+    now_sp = _get_sp_now_online()
+    if not dt_iso_str:
+        return _sp_dt_to_utc_iso(now_sp)
+    try:
+        dt_sp = _iso_to_sp(dt_iso_str)
+    except Exception:
+        return _sp_dt_to_utc_iso(now_sp)
+    return _sp_dt_to_utc_iso(dt_sp if dt_sp <= now_sp else now_sp)
+
+_PTBR_DT_REGEX = re.compile(r"^\s*(\d{2})/(\d{2})/(\d{4})\s+(\d{2}):(\d{2})\s*$")
+
+def _parse_ptbr_to_sp(s: str) -> datetime:
+    """
+    Converte 'DD/MM/YYYY HH:mm' → datetime timezone-aware (SP).
+    Lança ValueError se inválido.
+    """
+    m = _PTBR_DT_REGEX.match(s or "")
+    if not m:
+        raise ValueError("Formato inválido. Use DD/MM/YYYY HH:mm.")
+    d, M, y, h, m = map(int, m.groups())
+    return datetime(y, M, d, h, m, tzinfo=TZ_SP)
 
 # =============== UI helpers ===============
 def _section_title(txt, icon=None):
@@ -205,12 +272,17 @@ def cadastro_card():
                 dcc.Store(id="__dtpicker_dummy__"),  # apenas pra evitar warnings em alguns navegadores
                 dbc.Col(dmc.DateTimePicker(
                     id="data_dt",
-                    placeholder="Data/Hora (padrão: agora)",
+                    placeholder="Data/Hora (padrão: agora em São Paulo)",
                     valueFormat="DD/MM/YYYY HH:mm",
-                    # Nota: se sua versão do dmc não aceitar 'clearable', remova a linha abaixo
                     clearable=True,
-                    # Evita selecionar DIAS futuros; horário futuro do mesmo dia será travado no salvar
-                    maxDate=datetime.utcnow().strftime("%Y-%m-%d"),
+                    withSeconds=False,
+                    # Ajustes de apresentação compatíveis com dmc 2.3.0
+                    firstDayOfWeek=1,
+                    monthLabelFormat="MMMM YYYY",
+                    weekdayFormat="dd",
+                    yearsListFormat="YYYY",
+                    labelSeparator=" de ",
+                    # maxDate é definido via callback para segurar “dias futuros”
                 ), md=4),
                 dbc.Col(dmc.Autocomplete(
                     id="medico_auto",
@@ -222,7 +294,7 @@ def cadastro_card():
                 dbc.Col(dbc.Input(id="idade", placeholder="Idade (0-120)", type="number", min=0, max=120), md=3),
             ], className="g-3"),
 
-            html.Small("Padrão: data/hora atual (UTC). Você pode informar uma data passada, nunca futura.",
+            html.Small(" ",
                        className="text-muted"),
 
             html.Hr(className="my-3"),
@@ -235,12 +307,20 @@ def cadastro_card():
                     color="light",
                     children=_build_summary([]),
                 ), md=8),
-                dbc.Col(dbc.Button(
-                    [html.I(className="fa-solid fa-floppy-disk me-2"), "Salvar Exame"],
-                    id="btn_salvar",
-                    color="primary",
-                    className="w-100"
-                ), md=4),
+                dbc.Col(html.Div(className="d-flex gap-2", children=[
+                    dbc.Button(
+                        [html.I(className="fa-regular fa-note-sticky me-2"), "Observação"],
+                        id="btn_open_obs_modal",
+                        color="secondary",
+                        className="w-50"
+                    ),
+                    dbc.Button(
+                        [html.I(className="fa-solid fa-floppy-disk me-2"), "Salvar Exame"],
+                        id="btn_salvar",
+                        color="primary",
+                        className="w-50"
+                    ),
+                ]), md=4),
             ], className="g-3"),
 
             html.Div(id="save_feedback", className="mt-3"),
@@ -250,10 +330,14 @@ def cadastro_card():
             dcc.Store(id="materials_modal_store", data=[]),  # buffer do modal
             dcc.Store(id="materials_edit_index", data=None),
             dcc.Store(id="delete_pending_index", data=None),  # índice aguardando confirmação de exclusão
+            dcc.Store(id="obs_store", data=""),  # observação do atendimento
 
             # Redirecionamento pós-salvar
             dcc.Location(id="page_redirect"),
             dcc.Interval(id="after_save_interval", interval=2500, n_intervals=0, max_intervals=1, disabled=True),
+
+            # Sincroniza maxDate (hoje SP) periodicamente para longas sessões
+            dcc.Interval(id="sync_time_interval", interval=5 * 60 * 1000, n_intervals=0),
 
             # Sumíder para “absorver” saídas de debug quando DEBUG=False
             html.Div(id="void_debug", style={"display": "none"}),
@@ -265,7 +349,6 @@ def cadastro_card():
 
 def materials_modal():
     hide_style = {"display": "none"} if not HAS_BATCHES else {}
-    # Lote mais largo (md=6) + minWidth 480px
     return dbc.Modal(
         id="materials_modal",
         is_open=False,
@@ -333,15 +416,40 @@ def confirm_delete_modal():
         ]
     )
 
-layout = dbc.Container([cadastro_card(), materials_modal(), confirm_delete_modal()], fluid=True)
+def observation_modal():
+    return dbc.Modal(
+        id="obs_modal",
+        is_open=False,
+        centered=True,
+        size="lg",
+        children=[
+            dbc.ModalHeader(dbc.ModalTitle([html.I(className="fa-regular fa-note-sticky me-2"), "Observação do Atendimento"])),
+            dbc.ModalBody([
+                dmc.Textarea(
+                    id="obs_textarea",
+                    placeholder="Digite uma observação (opcional)...",
+                    autosize=True,
+                    minRows=4,
+                    maxRows=12
+                )
+            ]),
+            dbc.ModalFooter([
+                dbc.Button("Cancelar", id="obs_cancel_btn", className="me-2"),
+                dbc.Button([html.I(className="fa-solid fa-check me-2"), "Confirmar"], id="obs_confirm_btn", color="primary")
+            ])
+        ]
+    )
+
+layout = dbc.Container([cadastro_card(), materials_modal(), confirm_delete_modal(), observation_modal()], fluid=True)
 
 # =================================================================
 # Callbacks
 # =================================================================
 
-# 0) Inicializa data/hora com “agora” ao entrar na página (se vazio)
+# 0) Inicializa data/hora com “agora SP” ao entrar na página (se vazio) + seta maxDate (hoje SP)
 @dash.callback(
     Output("data_dt", "value"),
+    Output("data_dt", "maxDate"),
     Input("_pages_location", "pathname"),
     State("data_dt", "value"),
     prevent_initial_call=False
@@ -354,7 +462,16 @@ def _init_dt_now(pathname, cur_value):
             raise dash.exceptions.PreventUpdate
     except Exception:
         raise dash.exceptions.PreventUpdate
-    return _now_utc_iso()
+    return _now_sp_to_utc_iso(), _sp_today_iso_date()
+
+# 0b) Mantém maxDate sincronizado (longas sessões)
+@dash.callback(
+    Output("data_dt", "maxDate", allow_duplicate=True),
+    Input("sync_time_interval", "n_intervals"),
+    prevent_initial_call=True
+)
+def _refresh_max_date(_):
+    return _sp_today_iso_date()
 
 # 1) Preencher listas (exame e médico)
 @dash.callback(
@@ -439,7 +556,7 @@ def _load_batches(mat_id):
     Output("materials_table", "children"),
     Output("dbg_modal_store", "children") if DEBUG else Output("void_debug", "children", allow_duplicate=True),
     Input("materials_modal_store", "data"),
-    prevent_initial_call=True,  # importante por causa do allow_duplicate
+    prevent_initial_call=True,
 )
 def _refresh_modal_table(items):
     text = ""
@@ -455,7 +572,7 @@ def _refresh_modal_table(items):
     Output("selected_materials_summary", "children"),
     Output("dbg_selected_store", "children") if DEBUG else Output("void_debug", "children", allow_duplicate=True),
     Input("materials_selected_store", "data"),
-    prevent_initial_call=True,  # importante por causa do allow_duplicate
+    prevent_initial_call=True,
 )
 def _refresh_summary(items):
     text = ""
@@ -501,13 +618,11 @@ def _add_item(n, items, mat_id, lote_id, qtd):
 
     lote_norm = int(lote_id) if (HAS_BATCHES and lote_id not in (None, "", "null")) else None
 
-    # Validação por lote se informado
     if HAS_BATCHES and (lote_norm is not None):
         b = next((x for x in list_material_batches(int(mat_id)) if x.get("id") == lote_norm), None)
         if not b:
             errors.append("Lote inválido.")
         else:
-            # Se já existe item igual, validar somatório
             current = 0.0
             for it in (items or []):
                 if int(it.get("material_id")) == int(mat_id) and (it.get("lote_id") or None) == lote_norm:
@@ -520,7 +635,6 @@ def _add_item(n, items, mat_id, lote_id, qtd):
         return no_update, dbc.Alert(html.Ul([html.Li(e) for e in errors]), color="danger"), no_update, no_update, no_update, no_update, no_update, dbg
 
     items = list(items or [])
-    # Mesma combinação (material + lote) => soma
     merged = False
     for it in items:
         if int(it.get("material_id")) == int(mat_id) and (it.get("lote_id") or None) == lote_norm:
@@ -534,7 +648,7 @@ def _add_item(n, items, mat_id, lote_id, qtd):
     dbg = _dbg("ADD_OK", before=before_len, after=after_len, mat=int(mat_id), lote=lote_norm, qtd=q, merged=merged)
     return items, dbc.Alert("Item adicionado.", color="success"), None, None, None, None, True, dbg
 
-# 7) Preparar edição (no MODAL) — só dispara com clique real (>0)
+# 7) Preparar edição (no MODAL)
 @dash.callback(
     Output("mat_sel_id", "value", allow_duplicate=True),
     Output("mat_sel_lote", "value", allow_duplicate=True),
@@ -551,7 +665,7 @@ def _load_item_for_edit(_clicks, items, btn_ids):
     if not ctx.triggered_id or not isinstance(ctx.triggered_id, dict):
         raise dash.exceptions.PreventUpdate
 
-    trg = ctx.triggered_id  # {"type":"mat_edit_btn","idx":N}
+    trg = ctx.triggered_id
     pos = None
     for i, _id in enumerate(btn_ids or []):
         if _id.get("idx") == trg.get("idx"):
@@ -611,7 +725,6 @@ def _update_item(n, edit_idx, items, mat_id, lote_id, qtd):
         if not b:
             errors.append("Lote inválido.")
         else:
-            # somatório do mesmo item (excluindo o próprio) + novo q
             current = 0.0
             for i, it in enumerate(items or []):
                 if i == int(edit_idx):
@@ -645,7 +758,6 @@ def _open_confirm_delete(_clicks, btn_ids):
     if not ctx.triggered_id or not isinstance(ctx.triggered_id, dict):
         raise dash.exceptions.PreventUpdate
     trg = ctx.triggered_id
-    # localizar pos e checar clique real
     pos = None
     for i, _id in enumerate(btn_ids or []):
         if _id.get("idx") == trg.get("idx"):
@@ -722,9 +834,7 @@ def _apply_modal_selection(n, modal_items):
         raise dash.exceptions.PreventUpdate
     items = list(modal_items or [])
 
-    # Validação de saldo por material/lote (inclui sem lote: soma total <= saldo total)
     if HAS_BATCHES and items:
-        # Mapas: por material -> {None: qtd_sem_lote, lote_id: qtd}
         agg = {}
         for it in items:
             mid = int(it.get("material_id"))
@@ -738,13 +848,11 @@ def _apply_modal_selection(n, modal_items):
             batches = list_material_batches(mid)
             saldo_tot = sum(float(b.get("saldo") or 0.0) for b in batches)
             qtd_sem_lote = by_lote.get(None, 0.0)
-            # Checar cada lote específico
             for b in batches:
                 lid = b.get("id")
                 req = by_lote.get(lid, 0.0)
                 if req > float(b.get("saldo") or 0.0) + 1e-9:
                     errors.append(f"Material ID {mid}: lote {b.get('lote','-')} excede saldo ({req} > {b.get('saldo')}).")
-            # Checar total
             req_total = sum(v for k, v in by_lote.items() if k is not None) + qtd_sem_lote
             if req_total > saldo_tot + 1e-9:
                 errors.append(f"Material ID {mid}: quantidade total selecionada ({req_total}) excede saldo total ({saldo_tot}).")
@@ -757,7 +865,33 @@ def _apply_modal_selection(n, modal_items):
     dbg = _dbg("APPLY_MODAL", count=len(items))
     return items, False, "", dbg
 
-# 12) Salvar exame (usa itens confirmados) → backend faz baixa/LIFO por lote/FIFO sem duplicar → limpa store e recarrega
+# 12) Modal de Observação: abrir/fechar/gravar
+@dash.callback(
+    Output("obs_modal", "is_open", allow_duplicate=True),
+    Input("btn_open_obs_modal", "n_clicks"),
+    Input("obs_cancel_btn", "n_clicks"),
+    State("obs_modal", "is_open"),
+    prevent_initial_call=True
+)
+def _toggle_obs_modal(n_open, n_cancel, is_open):
+    trig = ctx.triggered_id
+    if trig == "btn_open_obs_modal":
+        return True
+    return False
+
+@dash.callback(
+    Output("obs_store", "data", allow_duplicate=True),
+    Output("obs_modal", "is_open", allow_duplicate=True),
+    Input("obs_confirm_btn", "n_clicks"),
+    State("obs_textarea", "value"),
+    prevent_initial_call=True
+)
+def _confirm_obs(n, text):
+    if not n:
+        raise dash.exceptions.PreventUpdate
+    return (text or "").strip(), False
+
+# 13) Salvar exame (usa itens confirmados) → backend faz baixa/LIFO por lote/FIFO sem duplicar → limpa store e recarrega
 @dash.callback(
     Output("save_feedback", "children"),
     Output("materials_selected_store", "data", allow_duplicate=True),
@@ -772,19 +906,20 @@ def _apply_modal_selection(n, modal_items):
     State("medico_auto", "value"),
     State("idade", "value"),
     State("materials_selected_store", "data"),
+    State("obs_store", "data"),
     prevent_initial_call=True
 )
-def _save_exam(n, exam_id, modalidade, exame_nome, data_dt, medico, idade, materiais):
+def _save_exam(n, exam_id, modalidade, exame_nome, data_dt, medico, idade, materiais, observacao):
     if not n:
         return no_update, no_update, no_update, no_update, no_update
     if not exam_id or not modalidade or not exame_nome:
         return dbc.Alert("Preencha Exam ID, Modalidade e Exame.", color="danger"), no_update, no_update, no_update, _dbg("SAVE_FAIL_VALIDATION")
 
-    # Data/hora: aceita passado, NUNCA futuro (clamp para agora)
+    # Data/hora: aceita passado, NUNCA futuro (com base em São Paulo, clamp para 'agora SP')
     try:
-        dt_iso = _clamp_future_to_now(data_dt)
+        dt_iso = _clamp_future_to_sp_now_iso(data_dt)
     except Exception:
-        dt_iso = _now_utc_iso()
+        dt_iso = _now_sp_to_utc_iso()
 
     safe_items = []
     for x in (materiais or []):
@@ -799,15 +934,21 @@ def _save_exam(n, exam_id, modalidade, exame_nome, data_dt, medico, idade, mater
     if HAS_BATCHES and safe_items:
         agg = {}
         for it in safe_items:
-            mid = int(it.get("material_id")); lid = it.get("lote_id"); q = float(it.get("quantidade") or 0.0)
-            d = agg.setdefault(mid, {}); d[lid] = d.get(lid, 0.0) + q
+            mid = int(it["material_id"])
+            lid = it["lote_id"]
+            q = float(it.get("quantidade") or 0.0)
+            d = agg.setdefault(mid, {})
+            d[lid] = d.get(lid, 0.0) + q
         for mid, by_lote in agg.items():
             batches = list_material_batches(mid)
             saldo_tot = sum(float(b.get("saldo") or 0.0) for b in batches)
+            # por lote
             for b in batches:
-                lid = b.get("id"); req = by_lote.get(lid, 0.0)
+                lid = b.get("id")
+                req = by_lote.get(lid, 0.0)
                 if req > float(b.get("saldo") or 0.0) + 1e-9:
                     return dbc.Alert("Saldo insuficiente (verifique lotes).", color="danger"), no_update, no_update, no_update, _dbg("SAVE_FAIL_STOCK")
+            # total
             req_total = sum(v for k, v in by_lote.items() if k is not None) + by_lote.get(None, 0.0)
             if req_total > saldo_tot + 1e-9:
                 return dbc.Alert("Saldo total insuficiente.", color="danger"), no_update, no_update, no_update, _dbg("SAVE_FAIL_STOCK")
@@ -818,14 +959,14 @@ def _save_exam(n, exam_id, modalidade, exame_nome, data_dt, medico, idade, mater
         "modalidade": modalidade,
         "exame": f"{MOD_LABEL.get(modalidade, modalidade)} - {exame_nome}",
         "medico": (medico or "").strip(),
-        "data_hora": dt_iso,
+        "data_hora": dt_iso,  # UTC ISO (naive) para armazenamento
         "idade": int(idade) if idade not in (None, "") else None,
         "user_email": "",
-        "materiais_usados": safe_items
+        "materiais_usados": safe_items,
+        "observacao": (observacao or "").strip(),
     }
 
     try:
-        # <<< AQUI É O PULO DO GATO: backend já consome estoque por lote/FIFO sem duplicar >>>
         ex_id = add_or_update_exam(exam)
         if medico:
             ensure_doctor(medico)
@@ -845,7 +986,7 @@ def _save_exam(n, exam_id, modalidade, exame_nome, data_dt, medico, idade, mater
         dbg = _dbg("SAVE_ERROR", err=str(e))
         return dbc.Alert(f"Erro ao salvar: {e}", color="danger"), no_update, no_update, no_update, dbg
 
-# 13) Após intervalo, recarrega/realoca a página atual
+# 14) Após intervalo, recarrega/realoca a página atual
 @dash.callback(
     Output("page_redirect", "href", allow_duplicate=True),
     Output("after_save_interval", "disabled", allow_duplicate=True),
@@ -856,6 +997,5 @@ def _save_exam(n, exam_id, modalidade, exame_nome, data_dt, medico, idade, mater
 def _do_redirect(n, pathname):
     if not n or n < 1:
         raise dash.exceptions.PreventUpdate
-    # Recarrega a própria rota (respeita prefixo do app)
     href = pathname or "/cadastro"
     return href, True
