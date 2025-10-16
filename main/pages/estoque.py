@@ -1,4 +1,4 @@
-# pages/estoque.py — gestão de estoque consolidada (lotes/validade + criação de lote inicial via movimento)
+# pages/estoque.py — gestão de estoque consolidada (lotes/validade + SALDO INICIAL correto)
 import json
 import dash
 from dash import html, dcc, Input, Output, State, ALL, no_update, ctx
@@ -29,6 +29,24 @@ def _fmt_money(v):
     except Exception:
         return "R$ 0,00"
 
+def _fmt_qtd(v):
+    try:
+        return f"{float(v or 0):.2f}"
+    except Exception:
+        return "0,00"
+
+def _fmt_date_br(s):
+    # Aceita 'YYYY-MM-DD' ou vazio
+    try:
+        if not s:
+            return "—"
+        s = str(s).strip()
+        if len(s) >= 10 and s[4] == "-" and s[7] == "-":
+            yyyy, mm, dd = s[:4], s[5:7], s[8:10]
+            return f"{dd}/{mm}/{yyyy}"
+        return s
+    except Exception:
+        return str(s) or "—"
 
 def _kpi_card(title, comp_id):
     return dbc.Card(
@@ -39,13 +57,13 @@ def _kpi_card(title, comp_id):
         className="shadow-sm"
     )
 
-
 def _batch_ref(material_id):
     """
     Retorna (lote_ref, validade_ref) para exibição na tabela:
     - Primeiro tenta o próximo a vencer com saldo > 0
     - Se não houver, usa o primeiro lote da lista
     - Se não houver lotes, ('—', '—')
+    Datas no formato PT-BR.
     """
     if not HAS_BATCHES or not material_id:
         return "—", "—"
@@ -60,8 +78,9 @@ def _batch_ref(material_id):
         candidates = batches
     candidates.sort(key=lambda b: (b.get("validade") or "9999-99-99"))
     b = candidates[0]
-    return (b.get("lote") or "—"), (b.get("validade") or "—")
-
+    lote = b.get("lote") or "—"
+    val = _fmt_date_br(b.get("validade") or "—")
+    return lote, val
 
 def _clicked_index(triggered_id_dict, all_clicks, all_ids):
     """
@@ -78,6 +97,22 @@ def _clicked_index(triggered_id_dict, all_clicks, all_ids):
                 return i
     return None
 
+def _filter_snapshot(rows, query):
+    """Filtra o snapshot pelo termo de busca (case-insensitive) em campos-chave."""
+    q = (query or "").strip().lower()
+    if not q:
+        return rows
+    out = []
+    for r in rows or []:
+        blob = " ".join([
+            str(r.get("id") or ""),
+            str(r.get("nome") or ""),
+            str(r.get("tipo") or ""),
+            str(r.get("unidade") or ""),
+        ]).lower()
+        if q in blob:
+            out.append(r)
+    return out
 
 def toolbar():
     return dbc.Row([
@@ -85,10 +120,13 @@ def toolbar():
                            id="btn_new_material", color="primary"), md="auto"),
         dbc.Col(dbc.Button([html.I(className="fa-solid fa-arrow-right-arrow-left me-2"), "Movimentar estoque"],
                            id="btn_open_mov_generic", color="secondary"), md="auto"),
+        dbc.Col(dbc.Input(id="stock_search", placeholder="Buscar por nome, tipo, unidade ou ID...", debounce=True),
+                md=5),
+        dbc.Col(dbc.Button([html.I(className="fa-solid fa-eraser me-2"), "Limpar"],
+                           id="btn_clear_search", color="secondary", outline=True), md="auto"),
         dcc.Store(id="estoque_refresh", data=0),           # ping para recarregar KPIs/tabela
         dcc.Store(id="current_material_id"),               # id do material em foco (editar/movimentar/excluir)
     ], className="mb-3 g-2")
-
 
 def kpis_row():
     return dbc.Row([
@@ -96,7 +134,6 @@ def kpis_row():
         dbc.Col(_kpi_card("Itens abaixo do mínimo", "kpi_abaixo"), md=4),
         dbc.Col(_kpi_card("Valor estimado", "kpi_valor"), md=4),
     ], className="mb-3")
-
 
 def _table(snap):
     cols = [
@@ -126,13 +163,13 @@ def _table(snap):
         row = [
             html.Td(x.get("id")), html.Td(x.get("nome")), html.Td(x.get("tipo")), html.Td(x.get("unidade")),
             html.Td(_fmt_money(x.get("valor_unitario"))),
-            html.Td(f"{float(x.get('estoque_inicial') or 0):.2f}"),
-            html.Td(f"{float(x.get('entradas') or 0):.2f}"),
-            html.Td(f"{float(x.get('saidas') or 0):.2f}"),
-            html.Td(f"{float(x.get('ajustes') or 0):.2f}"),
-            html.Td(f"{float(x.get('consumo_exames') or 0):.2f}"),
-            html.Td(html.B(f"{float(x.get('estoque_atual') or 0):.2f}")),
-            html.Td(f"{float(x.get('estoque_minimo') or 0):.2f}"),
+            html.Td(_fmt_qtd(x.get("estoque_inicial"))),
+            html.Td(_fmt_qtd(x.get("entradas"))),
+            html.Td(_fmt_qtd(x.get("saidas"))),
+            html.Td(_fmt_qtd(x.get("ajustes"))),
+            html.Td(_fmt_qtd(x.get("consumo_exames"))),
+            html.Td(html.B(_fmt_qtd(x.get("estoque_atual")))),
+            html.Td(_fmt_qtd(x.get("estoque_minimo"))),
             html.Td(dbc.Badge(status[0], color=status[1])),
         ]
         if HAS_BATCHES:
@@ -142,7 +179,6 @@ def _table(snap):
 
     return dbc.Table([header, html.Tbody(body)], bordered=True, hover=True, striped=True,
                      responsive=True, className="align-middle shadow-sm")
-
 
 def table_card():
     return dbc.Card([
@@ -174,12 +210,22 @@ def material_modal():
                     dbc.Col([dbc.Label("Estoque mínimo"), dbc.Input(id="mat_minimo", type="number", step="0.01", min=0)], md=3),
                 ], className="g-2 mt-1"),
                 html.Hr(className="my-2"),
-                html.Div(className="text-muted small mb-1",
-                         children="Opcional: se o estoque inicial > 0, será lançada uma ENTRADA com as informações abaixo (lote/validade/custo)."),
+                html.Div(
+                    className="text-muted small mb-1",
+                    children=[
+                        "Saldo inicial será contabilizado na coluna ",
+                        html.Strong("Inicial"),
+                        " e ",
+                        html.Strong("não"),
+                        " como Entrada. Para rastrear lotes do saldo inicial, registre uma ",
+                        html.Em("Entrada"),
+                        " no modal de movimentação após o cadastro (se necessário)."
+                    ]
+                ),
                 dbc.Row([
-                    dbc.Col([dbc.Label("Lote inicial (opcional)"), dbc.Input(id="mat_first_lote", placeholder="Ex.: L2025-01")], md=4),
-                    dbc.Col([dbc.Label("Validade (opcional)"), dbc.Input(id="mat_first_validade", type="date", placeholder="YYYY-MM-DD")], md=4),
-                    dbc.Col([dbc.Label("Custo unitário inicial (R$)"), dbc.Input(id="mat_first_custo", type="number", step="0.01", min=0)], md=4),
+                    dbc.Col([dbc.Label("Lote inicial (opcional)"), dbc.Input(id="mat_first_lote", placeholder="Ex.: L2025-01", disabled=True)], md=4),
+                    dbc.Col([dbc.Label("Validade (opcional)"), dbc.Input(id="mat_first_validade", type="date", placeholder="YYYY-MM-DD", disabled=True)], md=4),
+                    dbc.Col([dbc.Label("Custo unitário inicial (R$)"), dbc.Input(id="mat_first_custo", type="number", step="0.01", min=0, disabled=True)], md=4),
                 ], className="g-2"),
             ]),
             dbc.ModalFooter([
@@ -189,7 +235,6 @@ def material_modal():
             ])
         ]
     )
-
 
 def movement_modal():
     # Dropdowns ganham opções ao abrir (e quando material muda)
@@ -222,7 +267,7 @@ def movement_modal():
                      dbc.Col([dbc.Label("Lote (opcional)"), dbc.Input(id="mov_lote", placeholder="Ex.: L2025-01")], md=4)),
                 ], className="g-2 mt-1"),
                 dbc.Row([
-                    dbc.Col([dbc.Label("Validade (YYYY-MM-DD)"), dbc.Input(id="mov_validade", type="date", placeholder="YYYY-MM-DD")], md=4),
+                    dbc.Col([dbc.Label("Validade"), dbc.Input(id="mov_validade", type="date", placeholder="YYYY-MM-DD")], md=4),
                     dbc.Col([dbc.Label("Observação"), dbc.Input(id="mov_obs", placeholder="Obs.")], md=8)
                 ], className="g-2 mt-1"),
             ]),
@@ -232,7 +277,6 @@ def movement_modal():
             ])
         ]
     )
-
 
 def delete_modal():
     return dbc.Modal(
@@ -263,7 +307,7 @@ layout = dbc.Container([
 
 # ===================== Callbacks =====================
 
-# KPIs + Tabela (carrega ao entrar e a cada refresh ping)
+# KPIs + Tabela (carrega ao entrar e a cada refresh ping ou mudança de busca)
 @dash.callback(
     Output("kpi_itens", "children"),
     Output("kpi_abaixo", "children"),
@@ -271,14 +315,17 @@ layout = dbc.Container([
     Output("stock_table", "children"),
     Input("_pages_location", "pathname"),
     Input("estoque_refresh", "data"),
+    Input("stock_search", "value"),
     prevent_initial_call=False
 )
-def refresh_kpis_table(pathname, _ping):
+def refresh_kpis_table(pathname, _ping, search):
     # Aceita carregamento inicial sempre que a rota for /estoque
     if not (pathname or "").endswith("/estoque"):
         raise dash.exceptions.PreventUpdate
 
-    snap = compute_stock_snapshot() or []
+    snap_all = compute_stock_snapshot() or []
+    snap = _filter_snapshot(snap_all, search)
+
     # KPIs
     total = len(snap)
     abaixo = sum(1 for s in snap if s.get("abaixo_minimo"))
@@ -297,6 +344,16 @@ def refresh_kpis_table(pathname, _ping):
         _table(snap),
     )
 
+# Limpar busca
+@dash.callback(
+    Output("stock_search", "value"),
+    Input("btn_clear_search", "n_clicks"),
+    prevent_initial_call=True
+)
+def clear_search(n):
+    if not n:
+        raise dash.exceptions.PreventUpdate
+    return ""
 
 # Abrir/fechar MODAL de material (novo/editar)
 @dash.callback(
@@ -327,6 +384,7 @@ def open_material_modal(n_new, n_edit_clicks, n_edit_ids, n_cancel):
 
     # Novo material (clique real)
     if trig == "btn_new_material" and (n_new or 0) > 0:
+        # Campos de lote/custo desabilitados (saldo inicial não gera entrada automática)
         return True, "", None, "", "", "", "", 0, 0, "", None, ""
 
     # Edição a partir da linha — verificar índice realmente clicado
@@ -344,13 +402,12 @@ def open_material_modal(n_new, n_edit_clicks, n_edit_ids, n_cancel):
             float(mat.get("valor_unitario") or 0.0),
             float(mat.get("estoque_inicial") or 0.0),
             float(mat.get("estoque_minimo") or 0.0),
-            "", None, ""   # campos de entrada inicial zerados na edição
+            "", None, ""   # campos informativos (não usados no saldo inicial)
         )
 
     raise dash.exceptions.PreventUpdate
 
-
-# Salvar material (novo/editar) — entrada inicial como movimentação
+# Salvar material (novo/editar) — SALDO INICIAL fica na coluna correta (sem lançar ENTRADA)
 @dash.callback(
     Output("material_modal", "is_open", allow_duplicate=True),
     Output("material_feedback", "children", allow_duplicate=True),
@@ -391,52 +448,35 @@ def save_material(n, mid, nome, tipo, unidade, valor, inicial, minimo, first_lot
     inicial = to_float(inicial, "Estoque inicial")
     minimo = to_float(minimo, "Estoque mínimo")
 
-    # Se criando e informou estoque inicial, custo unitário inicial é opcional (valida formato)
-    if mid is None and (first_custo not in (None, "")):
-        try:
-            float(first_custo)
-        except Exception:
-            msgs.append("Custo unitário inicial inválido.")
-
     if msgs:
         return True, dbc.Alert(html.Ul([html.Li(m) for m in msgs]), color="danger"), no_update
 
     if mid is None:
-        # novo material: cadastra… e, se estoque inicial > 0, lança ENTRADA (com lote/validade/custo)
+        # novo material: saldo inicial vai no campo 'estoque_inicial' (NÃO gera ENTRADA)
         rec = {
             "nome": nome, "tipo": tipo, "unidade": unidade,
             "valor_unitario": valor,
-            # zera o estoque_inicial; contamos a entrada via movimento
-            "estoque_inicial": 0.0,
+            "estoque_inicial": float(inicial or 0.0),
             "estoque_minimo": minimo
         }
         new_id = add_material(rec)
-        if inicial > 0:
-            # registra ENTRADA — backend deve aplicar no estoque + batches (quando suportado)
-            add_stock_movement({
-                "material_id": int(new_id),
-                "tipo": "entrada",
-                "quantidade": float(inicial),
-                "lote": (first_lote or "").strip() or None,
-                "validade": (first_validade or "").strip() or None,
-                "valor_unitario": (float(first_custo) if first_custo not in (None, "") else None),
-                "obs": "Estoque inicial (cadastro)"
-            })
+
+        # Observação: se desejar rastrear LOTE/VALIDADE do saldo inicial,
+        # realize uma MOVIMENTAÇÃO do tipo 'Entrada' após o cadastro, informando o lote/validade.
         return False, dbc.Alert(f"Material criado (ID {new_id}).", color="success"), (ping or 0) + 1
 
     else:
-        # edição: não mexe em entrada inicial (use o modal de movimentação)
+        # edição: atualizar campos básicos; saldo inicial pode ser ajustado aqui
         rec = {
             "nome": nome, "tipo": tipo, "unidade": unidade,
             "valor_unitario": valor,
-            "estoque_inicial": float(inicial),
+            "estoque_inicial": float(inicial or 0.0),
             "estoque_minimo": minimo
         }
         ok = update_material(int(mid), rec)
         if ok:
             return False, dbc.Alert("Material atualizado com sucesso!", color="success"), (ping or 0) + 1
         return True, dbc.Alert("Nenhuma alteração aplicada.", color="warning"), no_update
-
 
 # Abrir/fechar MODAL de movimentação (por botão geral ou por linha)
 @dash.callback(
@@ -483,14 +523,13 @@ def open_mov_modal(n_generic, n_row_clicks, n_row_ids, n_cancel, cur_mid):
         mid = int(trig.get("id"))
         if HAS_BATCHES:
             batches = list_material_batches(mid) or []
-            lot_opts = [{"label": f"{b.get('lote','-')} • Val: {b.get('validade','-')} • Saldo: {b.get('saldo',0)}",
+            lot_opts = [{"label": f"{b.get('lote','-')} • Val: {_fmt_date_br(b.get('validade','-'))} • Saldo: {b.get('saldo',0)}",
                          "value": b.get("id")} for b in batches]
             return True, "", mid, mat_options, mid, None, None, None, lot_opts, None, None, ""
         else:
             return True, "", mid, mat_options, mid, None, None, None, None, None, None, ""
 
     raise dash.exceptions.PreventUpdate
-
 
 # Atualiza lista de lotes quando escolhe material no modal de movimento
 if HAS_BATCHES:
@@ -503,9 +542,8 @@ if HAS_BATCHES:
         if not mid:
             return []
         batches = list_material_batches(int(mid)) or []
-        return [{"label": f"{b.get('lote','-')} • Val: {b.get('validade','-')} • Saldo: {b.get('saldo',0)}",
+        return [{"label": f"{b.get('lote','-')} • Val: {_fmt_date_br(b.get('validade','-'))} • Saldo: {b.get('saldo',0)}",
                  "value": b.get("id")} for b in batches]
-
 
 # Salvar movimentação
 @dash.callback(
@@ -587,8 +625,7 @@ def save_movement(n, mid_from_row, mat_from_dd, tipo, qtd, valor, lote_val, vali
     except Exception as e:
         return True, dbc.Alert(f"Erro ao registrar movimentação: {e}", color="danger"), no_update
 
-    return False, dbc.Alert("Movimentação registrado!", color="success"), (ping or 0) + 1
-
+    return False, dbc.Alert("Movimentação registrada!", color="success"), (ping or 0) + 1
 
 # Abrir modal de exclusão (com verificação de clique real)
 @dash.callback(
@@ -623,7 +660,6 @@ def open_delete_modal(n_list, id_list, n_cancel):
         return True, int(mid), info
 
     raise dash.exceptions.PreventUpdate
-
 
 # Confirmar exclusão
 @dash.callback(
