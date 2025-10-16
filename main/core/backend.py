@@ -1,4 +1,5 @@
 # core/backend.py
+# core import
 import os, json, threading, re
 from datetime import datetime, timedelta
 from werkzeug.security import generate_password_hash
@@ -817,3 +818,4 @@ def build_home_button(href: str = "/", label: str = "Início", button_id: str = 
         className="rounded-pill me-2 shadow-sm",
         style={"fontWeight": 600, "paddingInline": "14px"},
     )
+
